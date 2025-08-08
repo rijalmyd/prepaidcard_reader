@@ -168,31 +168,25 @@ class _MyAppState extends State<MyApp> {
       setState(() {
         isWaitScan = true;
         isLoading = true;
+        cardData = null;
       });
 
-      PrepaidcardReader.instance
-          .startSession((card) async {
-            Future.delayed(Duration(seconds: 2)).then((_) {
-              PrepaidcardReader.instance.stopSession();
-              setState(() {
-                isWaitScan=false;
-              });
-            });
+      PrepaidcardReader.instance.startSession(
+        (card) async {
+          setState(() {
+            isLoading = false;
+            isWaitScan = false;
             if (card.cardNumber.isEmpty) {
-              setState(() {
-                cardData=null;
-                isCardSupported=false;
-                isLoading=false;
-              });
-              return;
-            }
-            setState(() {
+              cardData = null;
+              isCardSupported = false;
+            } else {
               cardData = card;
-              isLoading = false;
-              isCardSupported=true;
-            });
-          })
-          .catchError((error) {
+              isCardSupported = true;
+            }
+          });
+        },
+        stopOnDiscovered: true,
+      ).catchError((error) {
             PrepaidcardReader.instance.stopSession();
             setState(() {
               isWaitScan = false;

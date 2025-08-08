@@ -18,6 +18,8 @@ class PrepaidcardReader {
 
   NfcErrorCallback? onError;
 
+  bool _stopOnDiscovered = false;
+
   Future<bool> isAvailable() async {
     return channel
         .invokeMethod<bool>('Nfc#isAvailable')
@@ -26,11 +28,13 @@ class PrepaidcardReader {
 
   Future<void> startSession(
     NfcTagCallback onDiscovered, {
+    bool stopOnDiscovered = false,
     Set<NfcPollingOption>? pollingOptions,
     String alertMessage = "",
     NfcErrorCallback? onError,
   }) async {
     _onDiscovered = onDiscovered;
+    _stopOnDiscovered = stopOnDiscovered;
     onError = onError;
     pollingOptions ??= NfcPollingOption.values.toSet();
     return channel.invokeMethod('Nfc#startSession', {
@@ -44,6 +48,7 @@ class PrepaidcardReader {
   }) async {
     _onDiscovered = null;
     onError = null;
+    _stopOnDiscovered = false;
     return channel.invokeMethod('Nfc#stopSession', {
       'alertMessage': alertMessage,
       'errorMessage': errorMessage,
@@ -70,9 +75,7 @@ class PrepaidcardReader {
   void _handleOnDiscovered(MethodCall call) async {
     try {
       CardModel cardModel = CardModel.fromJson(jsonDecode(call.arguments));
-      if (_onDiscovered != null) {
-        if (_onDiscovered != null) await _onDiscovered!(cardModel);
-      }
+      if (_onDiscovered != null) await _onDiscovered!(cardModel);
     } catch (e) {
       if (_onDiscovered != null) {
         _onDiscovered!(
@@ -85,6 +88,10 @@ class PrepaidcardReader {
             '',
           ),
         );
+      }
+    } finally {
+      if (_stopOnDiscovered) {
+        stopSession();
       }
     }
   }
