@@ -2,6 +2,8 @@
 
 A Flutter plugin for reading NFC prepaid cards. This plugin provides functionality to interact with NFC-enabled cards, allowing you to read essential information such as card number, card name, balance, and other relevant details.
 
+<img width="270" height="630" alt="Screenshot_20250808_225922" src="https://github.com/user-attachments/assets/6cf617ce-5c63-4081-b383-2e4d71461482" />
+
 ## Features
 
 - **NFC Availability Check**: Determine if NFC is available on the device.
@@ -14,13 +16,6 @@ A Flutter plugin for reading NFC prepaid cards. This plugin provides functionali
     - `cardCode`
     - `anotherInfo` (for additional data)
 - **Error Handling**: Basic error handling for NFC operations.
-
-## Getting Started
-
-This project is a starting point for a Flutter
-[plug-in package](https://flutter.dev/to/develop-plugins),
-a specialized package that includes platform-specific implementation code for
-Android and/or iOS.
 
 ### Installation
 
