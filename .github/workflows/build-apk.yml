@@ -13,11 +13,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Flutter
+      - name: Set up Flutter (3.27.0 stable)
         uses: subosito/flutter-action@v2
         with:
+          flutter-version: '3.27.0'
           channel: stable
-          flutter-version: '3.24.4' # versi stable spesifik
+
+      - name: Flutter version check
+        run: flutter --version
 
       - name: Get flutter packages
         working-directory: ./example
