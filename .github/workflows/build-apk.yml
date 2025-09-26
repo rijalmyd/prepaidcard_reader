@@ -1,0 +1,61 @@
+name: Build Android APK (example)
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  setup-and-build:
+    runs-on: ubuntu-latest
+    env:
+      FLUTTER_CHANNEL: stable
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 'stable'
+
+      - name: Accept Android licenses
+        run: yes | ${{ runner.tool_cache }}/flutter/bin/cache/dart-sdk/bin/dart --disable-dart-dev || true
+        # (fallback step - ensure licenses accepted by sdkmanager)
+      - name: Install Android SDK (platforms and build-tools)
+        uses: reactivecircus/android-emulator-runner@v2
+        with:
+          api-level: 33
+          target: google_apis
+          arch: x86_64
+          force-avd-creation: false
+
+      - name: Enable flutter in path
+        run: flutter --version
+
+      - name: Get flutter packages (example)
+        working-directory: ./example
+        run: flutter pub get
+
+      - name: Build APK (example - release)
+        working-directory: ./example
+        run: |
+          flutter build apk --release --no-tree-shake-icons
+
+      - name: Upload release APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: example-apk-release
+          path: |
+            ./example/build/app/outputs/flutter-apk/app-release.apk
+            ./example/build/app/outputs/flutter-apk/app-release.aab || true
+
+      - name: Build APK (example - debug)
+        working-directory: ./example
+        run: flutter build apk --debug
+
+      - name: Upload debug APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: example-apk-debug
+          path: ./example/build/app/outputs/flutter-apk/app-debug.apk
